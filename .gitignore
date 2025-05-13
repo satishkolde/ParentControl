@@ -1,3 +1,4 @@
 **/node_modules
 **/.venv
 **/ml_model
+**/.env
