@@ -4,7 +4,7 @@ from pynput import keyboard, mouse
 current_word = []
 
 def send_to_server(word):
-    try:
+    try: 
         requests.post("http://localhost:5000/event", json={"word": word})
     except Exception as e:
         print("Error sending word:", e)

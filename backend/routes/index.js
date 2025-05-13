@@ -18,9 +18,12 @@ router.get('/stream', (req, res) => {
 
 router.post('/event', (req, res) => {
   const word = req.body.word;
+  const device = req.body.device;
   console.log('Received:', word);
+  console.log('Device:', device);
   for (const client of clients) {
       client.write(`data: ${word}\n\n`);
+      client.write(`device: ${device}\n\n`);
   }
   res.status(200).json({ message: 'Word broadcasted' });
 });
