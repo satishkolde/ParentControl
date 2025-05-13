@@ -1,5 +1,5 @@
 install dependencies:
-     $ npm install
+    $ npm install
 
-   run the app:
-     $ DEBUG=backend:* npm start
+run the app:
+  $ DEBUG=backend:* npm start
