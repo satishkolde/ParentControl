@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
   
 
   router.get('/:devicename', async (req, res) => {
-  
+    
     /// here you write the quries according to the data base 
     // here data should be displayed on react about the device 
 
