@@ -8,7 +8,7 @@ var jwt = require('jsonwebtoken');
 
 dotenv.config();
 
-var indexRouter = require('./routes/keylogger');
+var keyloggerRouter = require('./routes/keylogger');
 var usersRouter = require('./routes/users');
 var deviceRouter = require("./routes/device");
 
@@ -34,7 +34,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-app.use('/', indexRouter);
+app.use('/keylogger', keyloggerRouter);
 app.use('/users', usersRouter);
 app.use(authenticateToken);
 app.use('/device',deviceRouter);
