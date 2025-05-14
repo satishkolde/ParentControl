@@ -27,21 +27,25 @@ router.get('/stream', (req, res) => {
 
 router.post('/event', async (req, res) => {
   try {
-    const text = req.body.word;
-    const device = req.body.device;
-    console.log('Received:', text,device);
+    const { word: text, device } = req.body;
+    console.log('Received:', text, device);
 
-    // 1. ML Prediction
-    // const prediction = await predictText(text);
+    // 1. ML Prediction - call Flask API
+    const response = await axios.post('https://your-flask-url.onrender.com/predict', { text });
+
+    const prediction = response.data.prediction;
+    console.log('Prediction:', prediction);
 
     // 2. Save to MongoDB
-    // await saveToMongo(text, prediction);
+    await saveToMongo({ text, prediction, device });
+
+    // 3. Send response
+    res.status(200).json({ text, prediction });
+  } catch (error) {
+    console.error('Error in /event:', error.message);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-    catch (error) {
-      console.error('Error in /event:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  });
+}); 
 
 
 
