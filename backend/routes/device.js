@@ -2,33 +2,40 @@ var express = require('express');
 var router = express.Router();
 var User = require("../model/user");
 var Alert = require("../model/alerts");
-var {connection} = require("../model/connection")
 
-router.post('/add', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
       const { devicename, username } = req.body;
+      // console.log(req.user);
       if (!username) return res.status(400).json({ error: 'userId is required' });
-  
-      const newDevice = new User({
-        devicename,
-        username,
-      });
-  
-      await newDevice.save();
-      res.status(201).json({ message: 'Device added', device: newDevice });
+      const user = await User.findOne({"username":username});
+      if(!user){
+        console.log("User not found!");
+        return res.status(404).json({message:"User not found!"});
+      }
+      const existingDevice = user.device.find(
+        (d) => d.device_name === devicename
+      );
+      if (existingDevice) {
+        console.log("Device already exists for this user.");
+        return res.status(400).json({message:"Device already exists for this user."});
+      }
+      user.device.push({device_name:devicename});
+      await user.save();  
+      res.status(201).json({ message: 'Device added', device: devicename });
     } catch (error) {
       res.status(500).json({ error: 'Failed to add device' });
     }
   });
   
   // Get all devices for a specific user
-  router.get('/devices', async (req, res) => {
+  router.get('/', async (req, res) => {
     try {
       const { username } = req.query;
       if (!username) return res.status(400).json({ error: 'username is required' });
   
-      const devices = await User.find({ username });
-      res.json(devices);
+      const user = await User.findOne({ username });
+      res.json({"devices":user.device});
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch devices' });
     }
@@ -41,3 +48,5 @@ router.post('/add', async (req, res) => {
     // here data should be displayed on react about the device 
 
   });
+
+module.exports = router;

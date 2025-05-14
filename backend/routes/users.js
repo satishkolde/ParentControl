@@ -1,8 +1,9 @@
-const express = require('express');
+const express = require("express");
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
 const router = express.Router();
 const {uniqueNamesGenerator,adjectives,animals,colors} = require("unique-names-generator");
+const jwt = require('jsonwebtoken');
 
 //bcryptjs saltrounds setup
 const saltRounds = 10;
@@ -35,7 +36,8 @@ router.post('/register', async (req, res) => {
     const encrp_password = await bcrypt.hash(password,temp_salt);
     const user = new User({ "username":username, "password":encrp_password, "name":name });
     await user.save();
-    res.status(201).json({ message: 'User created successfully' });
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.status(201).json({token:token,username:username, message: 'User created successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -47,12 +49,14 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ error: 'User not found' });
-
+    console.log(process.env.JWT_SECERT);
     const isMatch = await bcrypt.compare(password, user.password);
     if(isMatch){
-      res.status(200).json({message:"Login in successfull!"});
+      const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.status(200).json({"token":token,message:"Login in successfull!"});
     }
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: err.message });
   }
 });

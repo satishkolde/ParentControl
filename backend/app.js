@@ -4,11 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var dotenv = require('dotenv');
+var jwt = require('jsonwebtoken');
 
 dotenv.config();
 
-var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/keylogger');
 var usersRouter = require('./routes/users');
+var deviceRouter = require("./routes/device");
 
 var app = express();
 
@@ -18,8 +20,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Middlewere for authentication
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use(authenticateToken);
+app.use('/device',deviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
