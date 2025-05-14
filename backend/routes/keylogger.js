@@ -4,6 +4,7 @@ var router = express.Router();
 const axios = require('axios');
 const clients = []
 const Alert = require('../model/alerts');
+const User = require("../model/user");
 
 /* GET home page. */
 router.get('/stream', (req, res) => {
@@ -22,6 +23,13 @@ router.post('/event', async (req, res) => {
   try {
     const { word: text, device } = req.body;
     console.log('Received:', text, device);
+    const user = await User.findOne({
+      device: { $elemMatch: { device_name: device } }
+    });
+
+    if(!user){
+      return res.status(400).json({message:"Forbidden"});
+    }
 
     // 1. ML Prediction - call Flask API
     const response = await axios.post('http://localhost:8000/predict', { text });
