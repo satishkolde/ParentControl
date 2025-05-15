@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-scikit-learn
-torch
-joblib
-transformers
+pydantic
+requests
+python-dotenv

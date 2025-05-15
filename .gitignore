@@ -2,3 +2,6 @@
 **/.venv
 **/ml_model
 **/.env
+**/build
+**/dist
+**/__pycache__
