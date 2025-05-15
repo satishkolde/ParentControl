@@ -98,3 +98,87 @@ button:hover {
   color: #0D0D0D;
 }
 
+.device-info1 {
+           font-size: 18px;
+           margin-bottom: 20px;
+           color: #00FF00;
+       }
+
+
+
+       .tile1 {
+        background-color: #1A1A1A;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 12px rgba(0, 255, 0, 0.2);
+        border: 1px solid #00FF00;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 800px;
+    }
+    .text1 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #00FF00;
+        width: 100%;
+        padding: 20px;
+    }
+    .details1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        width: 100%;
+        gap: 15px;
+    }
+    .details1 .left1 {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1.5;
+        align-items: flex-start;
+        border: none;
+    }
+    .block1 {
+        background-color: transparent;
+        padding: 10px;
+        text-align: left;
+        color: #00FF00;
+        font-size: 16px; /* Restoring font size */
+    }
+    .details1 .right1 {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px solid #00FF00;
+        border-radius: 5px;
+        margin-left: 8px;
+        animation: none;
+        width: 65%;
+        padding: 8px;
+    }
+
+
+    .grid1 {
+      display: grid;                    /* Enables grid layout */
+      /* grid-template-columns: repeat(2, 1fr); 2 columns per row */
+      /* gap: 20px;                        Adds space between tiles */
+      width: 100%;                      /* Ensure the container takes full width */
+      max-width: 1200px;                 /* Optional: limits max width for larger screens */
+      /* margin: 0 auto;                    Centers the container */
+    }
+
+
+    @media (max-width: 768px) {
+      .grid1 {
+        grid-template-columns: 1fr; /* Switch to 1 column per row on smaller screens */
+      }
+    }
+
+    .divrow{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      /* flex-direction: row; */
+      /* flex-wrap: wrap; */
+    }
