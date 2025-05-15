@@ -2,6 +2,7 @@
 // pages/login.js
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -10,17 +11,11 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:5000/users/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await response.json();
+    const response = await axios.post('https://parentcontrolserver.onrender.com/users/login',{username:username,password:password});
+    const data = await response.data;
     if (data.token) {
       localStorage.setItem('token', data.token);
-      router.push('/devices');
+      router.push('/device');
     } else {
       alert('Login failed!');
     }
