@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
     try {
       const { devicename } = req.body;
       const username = req.user.username;
-      if (!username) return res.status(400).json({ error: 'userId is required' });
+      if (!username) return res.status(400).json({ error: 'username is required' });
       const user = await User.findOne({"username":username});
       if(!user){
         console.log("User not found!");
