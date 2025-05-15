@@ -69,4 +69,27 @@ router.post('/', async (req, res) => {
     }
   });
 
+  router.get('/:devicename/all', async (req, res) => {
+    try{
+      const {devicename} = req.params;
+      const user = await User.findOne({"username":req.user.username});
+      if(!user){
+        return res.status(404).json({message:"User not found!"});
+      }
+      
+      const device = user.device.find(d => d.device_name === devicename);
+
+      if(!device){
+        return res.status(404).json({message:"Device not found"});
+      }
+
+      let alerts = await Alert.find({device_name:devicename});
+      return res.status(200).send(alerts);
+
+    }catch(err){
+      console.log(err);
+      return res.status(500).json({message:err});
+    }
+  });
+
 module.exports = router;
