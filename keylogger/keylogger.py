@@ -19,12 +19,19 @@ def show_start_notification():
 
             print("Device name from server:", device_name)
 
-            # Show GUI window with device name
             def copy_and_close():
                 root.clipboard_clear()
                 root.clipboard_append(device_name)
-                root.update()  # now it stays on the clipboard
-                root.destroy()
+                root.update_idletasks()  # safer than root.update()
+                root.withdraw()  # hide the window instead of destroying
+                try:
+                    # Force clipboard to be saved to system (especially on Windows)
+                    root.clipboard_get()
+                except tk.TclError as e:
+                    print("Clipboard error:", e)
+                root.after(500, root.destroy)  # destroy after delay
+
+
 
             root = tk.Tk()
             root.title("Device ID Generated")
