@@ -11,7 +11,7 @@ def show_start_notification():
     global device_name
     try:
         # Get device name from server
-        response = requests.get("http://localhost:5000/keylogger/get_unique_id")
+        response = requests.get("https://parentcontrolserver.onrender.com/keylogger/get_unique_id")
 
         if response.status_code == 200:
             data = response.json()
