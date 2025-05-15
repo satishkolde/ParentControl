@@ -1,23 +1,23 @@
-import torch
-import pickle
-from fastapi import FastAPI, Request
+import os
+import requests
+from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import BertTokenizer, pipeline
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
-# Load tokenizer
-tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+HF_TOKEN = os.getenv("HF_TOKEN")  # Replace or use env variable
+HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-emotion_classifier = pipeline(
-    "text-classification",
-    model="j-hartmann/emotion-english-distilroberta-base",
-    top_k=None
-)
+# Hugging Face API endpoints
+EMOTION_MODEL_URL = "https://api-inference.huggingface.co/models/j-hartmann/emotion-english-distilroberta-base"
+TOXICITY_MODEL_URL = "https://api-inference.huggingface.co/models/unitary/toxic-bert"
+ZSC_MODEL_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
 
-# 1. Keyword filter for high-risk terms (you can expand this list)
+# High risk keywords
 HIGH_RISK_KEYWORDS = {
-    "inappropriate": ["porn", "sex", "xxx", "nsfw", "fuck", "shit", "bitch","p**n","s*x","sexy"],
+    "inappropriate": ["porn", "sex", "xxx", "nsfw", "fuck", "shit", "bitch", "p**n", "s*x", "sexy"],
     "violence": ["kill", "gun", "fight", "shoot", "bomb"],
     "self_harm": ["suicide", "die", "kill myself"]
 }
@@ -29,22 +29,23 @@ def keyword_check(text):
             return category
     return None
 
-# 2. Toxicity model (pretrained)
-toxicity_classifier = pipeline("text-classification", model="unitary/toxic-bert", top_k=None)
-# Initialize zero-shot classification pipeline
-context_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+def query_huggingface(text, model_url, extra_payload=None):
+    payload = {"inputs": text}
+    if extra_payload:
+        payload.update(extra_payload)
+    response = requests.post(model_url, headers=HEADERS, json=payload)
+    response.raise_for_status()
+    return response.json()
+
+def get_emotion(text):
+    result = query_huggingface(text, EMOTION_MODEL_URL)[0]
+    top = max(result, key=lambda x: x["score"])
+    return top["label"]
 
 def check_toxicity(text, threshold=0.7):
-    results = toxicity_classifier(text)[0]
-    # Check if any toxicity label is above threshold (e.g. "toxic", "severe_toxic", etc)
+    result = query_huggingface(text, TOXICITY_MODEL_URL)[0]
     toxic_labels = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
-    for res in results:
-        if res['label'].lower() in toxic_labels and res['score'] > threshold:
-            return True
-    return False
-
-# 3. Context classifier (zero-shot as fallback)
-from transformers import pipeline
+    return any(r["label"].lower() in toxic_labels and r["score"] > threshold for r in result)
 
 context_labels = [
     "education", "entertainment", "social", "searching", "inappropriate",
@@ -58,13 +59,13 @@ def classify_context(text):
     if kw_result:
         return kw_result
 
-    # Then check toxicity to override with inappropriate category if toxic
+    # Check for toxicity
     if check_toxicity(text):
         return "inappropriate"
 
-    # Finally do zero-shot classification
-    result = context_classifier(text, candidate_labels=context_labels)
-    return result['labels'][0]  # top predicted label
+    # Zero-shot classification
+    result = query_huggingface(text, ZSC_MODEL_URL, {"parameters": {"candidate_labels": context_labels}})
+    return result["labels"][0]
 
 def classify_risk(sentiment: str, context: str) -> str:
     high_risk = {
@@ -97,35 +98,20 @@ def classify_risk(sentiment: str, context: str) -> str:
     elif sentiment in low_risk and context in low_risk[sentiment]:
         return "Low"
     else:
-        return "Moderate"  # Default to moderate if not clearly defined
+        return "Moderate"
 
-
-# Input: Example text from user
 class TextInput(BaseModel):
     text: str
-
-
-def predict(text, model, decoder):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-    with torch.no_grad():
-        outputs = model(**inputs)
-        prediction = torch.argmax(outputs.logits, dim=1).item()
-    return decoder[prediction]
-
 
 @app.post("/predict")
 def predict_all(input_data: TextInput):
     text = input_data.text
-    # Get emotion predictions
-    emotions = emotion_classifier(text)
-
-    # Find the emotion with the highest score
-    sentiment = max(emotions[0], key=lambda x: x['score'])
+    sentiment = get_emotion(text)
     context = classify_context(text)
-    risk = classify_risk(sentiment["label"],context)
+    risk = classify_risk(sentiment, context)
 
     return {
-        "sentiment": sentiment["label"],
+        "sentiment": sentiment,
         "context": context,
         "risk": risk,
     }
