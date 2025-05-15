@@ -2,6 +2,7 @@
 // pages/register.js
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function Register() {
   const [username, setUsername] = useState('');
@@ -10,20 +11,19 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:5000/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: username, password }),
-    });
-    const data = await response.json();
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      router.push('/devices');
-    } else {
-      alert('Registration failed!');
+    try{
+      const response = await axios.post('https://parentcontrolserver.onrender.com/users/register',{username:username,password:password});
+      const data = await response.data;
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        router.push('/device');
+      } else {
+        alert('Registration failed!');
+      }
+    }catch(err){
+      console.log(err);
     }
+    
   };
 
   return (

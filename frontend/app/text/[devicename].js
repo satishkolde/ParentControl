@@ -1,9 +1,9 @@
 // pages/text/[devicename].js
+"use client";  // This is required for using client-side hooks in Next.js 13+
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-
-// import '.../app/globals.css';
-
+import axios from 'axios';  // Import Axios
 
 export default function Text() {
   const [texts, setTexts] = useState([]);
@@ -14,13 +14,16 @@ export default function Text() {
     if (devicename) {
       const fetchTexts = async () => {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/device/${devicename}/all`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        setTexts(data);
+        try {
+          const response = await axios.get(`https://parentcontrolserver.onrender.com/device/${devicename}/all`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setTexts(response.data);  // Set the texts data using response.data
+        } catch (error) {
+          console.error('Error fetching texts:', error);
+        }
       };
       fetchTexts();
     }
