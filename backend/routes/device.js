@@ -5,8 +5,8 @@ var Alert = require("../model/alerts");
 
 router.post('/', async (req, res) => {
     try {
-      const { devicename, username } = req.body;
-      console.log(req.user);
+      const { devicename } = req.body;
+      const username = req.user.username;
       if (!username) return res.status(400).json({ error: 'userId is required' });
       const user = await User.findOne({"username":username});
       if(!user){
