@@ -4,6 +4,9 @@ const deviceSchema = new mongoose.Schema({
     device_name:{
         type:String,
         unqiue:true
+    },
+    username:{
+        type:String
     }
 },{_id:false})
 
@@ -11,10 +14,6 @@ const userSchema = new mongoose.Schema({
     username:{
         type:String,
         unique:true,
-        require:true
-    },
-    name:{
-        type:String,
         require:true
     },
     password:{
