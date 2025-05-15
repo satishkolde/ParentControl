@@ -2,3 +2,4 @@
 **/.venv
 **/ml_model
 **/.env
+**/build
