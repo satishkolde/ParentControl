@@ -1,4 +1,3 @@
-// pages/alert/[devicename].js
 "use client";  // This is required for using client-side hooks in Next.js 13+
 
 import { useEffect, useState } from 'react';
@@ -8,11 +7,12 @@ import axios from 'axios';  // Import Axios
 export default function Alert({params}) {
   const [alerts, setAlerts] = useState(null);
   const router = useRouter();
-  const [devicename,setDeviceName] = useState("");
+  const [gdevicename,setDeviceName] = useState("");
   useEffect(() => {
     const fetchAlert = async () => {
-      const { temp_devicename } = await params;
-      setDeviceName(temp_devicename);
+      const { devicename } = await params;
+      setDeviceName(devicename);
+      console.log(devicename)
       if(!devicename){
         return;
       }
@@ -33,21 +33,30 @@ export default function Alert({params}) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-green-500 p-10">
+    <>
+    <h1>{gdevicename}</h1>
+    <div className="min-h-screen bg-black text-green-500 p-10 divrow">
       {alerts && alerts.length > 0 ? (
-        alerts.map((alert, index) => (
-          <div key={index}>
-            <h2 className="text-2xl mb-4">{devicename} - Alert {index + 1}</h2>
-            <p><strong>Text:</strong> {alert.text}</p>
-            <p><strong>Context:</strong> {alert.context}</p>
-            <p><strong>Sentiment:</strong> {alert.sentiment}</p>
-            <p><strong>Risk:</strong> {alert.risk}</p>
-          </div>
-        ))
-      ) : (
-        <p>Loading all...</p>
-      )}
+  alerts.map((alert, index) => (
+    <div className="grid1 flex-1" key={index}>
+        <div className="tile1">
+            <div className="text1">{alert.text}</div>
+            <div className="details1">
+                <div className="left1">
+                    <div className="block1"><strong>Context:</strong> <span>{alert.context}</span></div>
+                    <div className="block1"><strong>Sentiment:</strong> <span>{alert.sentiment}</span></div>
+                </div>
+                <div className="right1" data-risk="high"><span>{alert.risk}</span></div>
+            </div>
+        </div>
     </div>
+    
+  ))
+) : (
+  <p>Loading alert...</p>
+)}
+    </div>
+    </>
   );
   
 }
