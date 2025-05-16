@@ -96,23 +96,24 @@ export default function Devices() {
         </form>
 
         {/* List of devices */}
-        <div className="text-center">
-          <h2 className="text-2xl mb-4">Your Devices</h2>
-          <ul className="space-y-2">
-            {devices.length > 0 ? (
-              devices.map((device, index) => (
-                <li
+        <div className="text-center max-w-2xl mx-auto mt-10">
+          <h2 className="text-3xl font-semibold mb-6 text-white">Your Devices</h2>
+
+          {devices.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {devices.map((device, index) => (
+                <div
                   key={index}
                   onClick={() => router.push(`/alert/${device.device_name}`)}
-                  className="cursor-pointer hover:text-green-300 cursor-pointer"
+                  className="bg-gray-800 hover:bg-green-700 transition-all duration-300 p-4 rounded-2xl shadow-md cursor-pointer border border-gray-700 hover:shadow-lg"
                 >
-                  {device.device_name}
-                </li>
-              ))
-            ) : (
-              <p>No devices found. Add a device to get started.</p>
-            )}
-          </ul>
+                  <p className="text-white font-medium text-lg">{device.device_name}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 mt-4">No devices found. Add a device to get started.</p>
+          )}
         </div>
       </div>
     </div>
