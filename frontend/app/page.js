@@ -2,6 +2,8 @@
 import Link from "next/link";
 import IndexNavbar from "./Navbars/IndexNavbar";
 import Footer from "./Footer/Footer";
+
+
 export default function LandingPage() {
   return (
     <>
@@ -42,9 +44,8 @@ export default function LandingPage() {
         </div>
 
         <img
-          className="absolute top-0 b-auto right-0 pt-16 sm:w-6/12 -mt-48 sm:mt-0 w-14/12 max-h-800px"
-          src="https://sdmntprwestus.oaiusercontent.com/files/00000000-ee28-6230-8cfd-5add249a5179/raw?se=2025-05-21T19%3A56%3A44Z&sp=r&sv=2024-08-04&sr=b&scid=9d9592c7-4ce2-50de-a284-e55b28cf850c&skoid=b64a43d9-3512-45c2-98b4-dea55d094240&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-05-20T22%3A33%3A22Z&ske=2025-05-21T22%3A33%3A22Z&sks=b&skv=2024-08-04&sig=SSYL8Ue39RAxJJoYygMYzcyhHUrAQY%2BYwIWuZeKXAoM%3D"
-          alt="..."
+          className="absolute top-0 b-auto right-0 pt-16 sm:w-6/12 -mt-48 sm:mt-0 w-12/16 max-h-800px"
+          src="/ChatGPT Image May 22, 2025, 01_49_38 AM.png"
         />
       </section>
 
