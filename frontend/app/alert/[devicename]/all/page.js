@@ -3,58 +3,92 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';  // Import Axios
+import ListTable from '../ListTable';
+import AlertTable from '../AlertTable'
+import IndexNavbar from '@/app/Navbars/IndexNavbar'
 
 export default function Alert({params}) {
   const [alerts, setAlerts] = useState(null);
+  const [tableData,setTableData] = useState([]);
+  const [tableDataPresent,setTableDataPresent] = useState(false);
   const router = useRouter();
   const [gdevicename,setDeviceName] = useState("");
   useEffect(() => {
     const fetchAlert = async () => {
       const { devicename } = await params;
       setDeviceName(devicename);
-      console.log(devicename)
-      if(!devicename){
-        return;
-      }
+      console.log("Device name:", devicename);
+
+      if (!devicename) return;
+
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`https://parentcontrolserver.onrender.com/device/${devicename}/all`, {
+        const response = await axios.get(`https://parentcontrolserver.onrender.com/device/${devicename}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+
         setAlerts(response.data);
-        // Set the alert data using response.data
+
+        let context = {};
+        let sentiment = {};
+        let risk = {};
+
+        response.data.forEach(element => {
+          context[element.context] = (context[element.context] || 0) + 1;
+          sentiment[element.sentiment] = (sentiment[element.sentiment] || 0) + 1;
+          risk[element.risk] = (risk[element.risk] || 0) + 1;
+        });
+
+        const sentimentContent = Object.entries(sentiment).map(([title, count]) => ({ title, count }));
+        const contextContent = Object.entries(context).map(([title, count]) => ({ title, count }));
+        const riskContent = Object.entries(risk).map(([title, count]) => ({ title, count }));
+
+        const tableDetails = [
+          { tableTitle: "Sentiment", totalCount: response.data.length, tableContent: sentimentContent },
+          { tableTitle: "Context", totalCount: response.data.length, tableContent: contextContent },
+          { tableTitle: "Risk", totalCount: response.data.length, tableContent: riskContent },
+        ];
+        const deepClone = JSON.parse(JSON.stringify(tableDetails));
+        setTableData(deepClone);
       } catch (error) {
         console.error('Error fetching alert:', error);
       }
     };
+
     fetchAlert();
-  }, []);
+}, []);
+
+useEffect(() => {
+  console.log("Updated tableData:", tableData);
+  setTableDataPresent(true);
+}, [tableData]);
 
   return (
     <>
-    <h1>{gdevicename}</h1>
-    <div className="min-h-screen bg-black text-green-500 p-10 divrow">
-      {alerts && alerts.length > 0 ? (
-  alerts.map((alert, index) => (
-    <div className="grid1 flex-1" key={index}>
-        <div className="tile1">
-            <div className="text1">{alert.text}</div>
-            <div className="details1">
-                <div className="left1">
-                    <div className="block1"><strong>Context:</strong> <span>{alert.context}</span></div>
-                    <div className="block1"><strong>Sentiment:</strong> <span>{alert.sentiment}</span></div>
-                </div>
-                <div className="right1" data-risk="high"><span>{alert.risk}</span></div>
-            </div>
-        </div>
-    </div>
-    
-  ))
-) : (
-  <p>Loading alert...</p>
-)}
+    <IndexNavbar fixed />
+    <div className="w-full min-h-screen bg-white text-black p-10 mt-[80px] flex flex-row" style={{"gap":"16px"}}>
+      {/* Left Column: Alert Table */}
+      <div className='w-full'>
+        <AlertTable device_name={gdevicename} alerts={alerts} />
+      </div>
+
+      {/* Right Column: List Tables stacked vertically */}
+      <div className="flex flex-col gap-4">
+        {tableDataPresent ? (
+          tableData.map((row, index) => (
+            <ListTable
+              key={index}
+              tableTitle={row.tableTitle}
+              tableContent={row.tableContent}
+              totalCount={row.totalCount}
+            />
+          ))
+        ) : (
+          <p>Loading alert...</p>
+        )}
+      </div>
     </div>
     </>
   );
