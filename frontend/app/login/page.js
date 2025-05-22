@@ -64,13 +64,12 @@ export default function Login() {
                       placeholder="Password"
                     />
                   </div>
-
                   <div className="text-center mt-6">
                     <button
-                      className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
-                      type="button"
+                      className="bg-lightBlue-500 text-white active:bg-lightBlue-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                      type="submit"
                     >
-                      Sign In
+                      Login
                     </button>
                   </div>
                 </form>
@@ -79,12 +78,10 @@ export default function Login() {
             <div className="flex flex-wrap mt-6 relative">
               <div className="w-1/2">
                 <a
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
+                  href="/"
                   className="text-blueGray-800"
-                  aria-disabled={true}
                 >
-                  <small>Forgot password?</small>
+                  <small>Go to homepage</small>
                 </a>
               </div>
               <div className="w-1/2 text-right">
