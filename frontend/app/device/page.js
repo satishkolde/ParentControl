@@ -127,6 +127,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import IndexNavbar from "@/app/Navbars/IndexNavbar"
 import axios from "axios";
 
 export default function Devices() {
@@ -209,7 +210,9 @@ export default function Devices() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0288D1] text-gray-900 p-10 flex justify-center">
+    <>
+    <IndexNavbar fixed />
+    <div className="min-h-screen mt-[80px] text-gray-900 p-10 flex justify-center">
       {/* Container to restrict width */}
       <div className="w-full max-w-[1200px]">
         {/* Add Device Card */}
@@ -273,6 +276,7 @@ export default function Devices() {
         </div>
       </div>
     </div>
+    </>
   );
   
 }
