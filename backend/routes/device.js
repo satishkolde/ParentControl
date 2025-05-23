@@ -69,6 +69,19 @@ router.post('/', async (req, res) => {
     }
   });
 
+
+  router.get('/download',async(req,res)=>{
+    try {
+      const fileUrl = `https://drive.google.com/file/d/1BjGzj70W1XbI6S8chdkZMZj6Tqq5uIC4/view?usp=drive_link`;
+      res.redirect(fileUrl)
+    } catch (error) {
+      console.error("Download error:", error.message);
+      res.status(500).send("Failed to download file.");
+    }
+
+  })
+
+
   router.get('/:devicename/all', async (req, res) => {
     try{
       const {devicename} = req.params;
